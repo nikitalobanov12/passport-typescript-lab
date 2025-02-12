@@ -15,41 +15,57 @@ const callbackURL = process.env.GITHUB_CALLBACK_URL;
 // console.log('Client Secret:', clientSecret?.substring(0, 4) + '...');
 // console.log('Callback URL:', callbackURL);
 
-
 const githubStrategy: GitHubStrategy = new GitHubStrategy(
 	{
 		clientID: clientID || '',
 		clientSecret: clientSecret || '',
 		callbackURL: callbackURL || 'http://localhost:8000/auth/github/callback',
+		scope: ['user:email'],
 		passReqToCallback: true,
 	},
-	async (
-		req: Request,
-		accessToken: string,
-		refreshToken: string,
-		profile: any, // Type assertion to handle unknown profile type
-		done: VerifyCallback
-	) => {
+	async (req: Request, accessToken: string, refreshToken: string, profile: any, done: VerifyCallback) => {
 		try {
-			const existingUser = await userModel.findOne({
-				email: profile.emails?.[0]?.value,
+			console.log('github profile:', {
+				id: profile.id,
+				displayName: profile.displayName,
+				emails: profile.emails,
+				username: profile.username,
 			});
+			const email = profile.emails?.[0]?.value;
 
-			if (existingUser) {
-				return done(null, existingUser);
+			if (!email) {
+				console.log('No email found in github profile');
+				const username = profile.username;
+				const githubEmail = `${username}@github.com`;
+				try {
+					const existingUser = userModel.findOne({
+						email: githubEmail,
+					});
+					return done(null, existingUser);
+				} catch (error) {
+					const newUser = userModel.createUser({
+						name: profile.displayName || profile.username,
+						email: githubEmail,
+						password: '', // GitHub users don't need password
+						githubId: profile.id,
+						username: profile.username,
+						admin: false,
+					});
+					return done(null, newUser);
+				}
 			} else {
-				const newUser = await userModel.createUser({
+				const newUser = userModel.createUser({
 					name: profile.displayName,
 					email: profile.emails?.[0]?.value,
 					password: '',
 					githubId: profile.id,
 					username: profile.username,
-					avatar: profile.photos?.[0]?.value,
+					admin: false,
 				});
 				return done(null, newUser);
 			}
 		} catch (error) {
-			return done(error);
+			return done(error as Error);
 		}
 	}
 );

@@ -9,12 +9,15 @@ const localStrategy = new LocalStrategy(
 		passwordField: 'password',
 	},
 	(email, password, done) => {
-		const user = getUserByEmailIdAndPassword(email, password);
-		return user
-			? done(null, user)
-			: done(null, false, {
-					message: 'Your login details are not valid. Please try again',
-			  });
+		try {
+			const user = getUserByEmailIdAndPassword({ email }, password);
+			if (user) return done(null, user);
+		} catch (error: any) {
+
+			return done(null, false, {
+				message: error.message,
+			});
+		}
 	}
 );
 
@@ -23,7 +26,7 @@ passport.serializeUser(function (user: Express.User, done: (err: any, id?: numbe
 });
 
 passport.deserializeUser(function (id: number, done: (err: any, user?: Express.User | null) => void) {
-	const user = getUserById(id);
+	const user = getUserById(id);    
 	if (user) {
 		done(null, user);
 	} else {

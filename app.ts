@@ -9,6 +9,7 @@ import expressLayouts from 'express-ejs-layouts';
 import session from 'express-session';
 import path from 'path';
 import passportMiddleware from './middleware/passportMiddleware';
+import adminRoute from './routes/adminRoute';
 
 const port = process.env.port || 8000;
 
@@ -52,6 +53,7 @@ app.use((req, res, next) => {
 
 app.use('/', indexRoute);
 app.use('/auth', authRoute);
+app.use('/admin', adminRoute);
 
 app.listen(port, () => {
 	console.log(`🚀 Server has started on port ${port}`);

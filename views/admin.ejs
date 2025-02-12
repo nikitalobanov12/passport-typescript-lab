@@ -1,0 +1,50 @@
+<h1 class="mt-4">Admin Dashboard</h1>
+<div class="card ">
+	<div class="card-body">
+		<h3 class="card-title">Active Sessions</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Session ID</th>
+					<th>User ID</th>
+					<th>Created At</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% sessions.forEach(function(session) { %>
+				<tr>
+					<td><%= session.sessionId %></td>
+					<td><%= session.userId %></td>
+					<td><%= session.createdAt.toLocaleString() %></td>
+					<td>
+						<% if (session.sessionId !== currentSessionId) { %>
+						<form
+							action="/admin/revoke-session"
+							method="POST"
+							style="display: inline"
+						>
+							<input
+								type="hidden"
+								name="sessionId"
+								value="<%= session.sessionId %>"
+							/>
+							<button
+								type="submit"
+								class="btn btn-danger btn-sm"
+							>
+								Revoke Session
+							</button>
+						</form>
+						<% } else { %>
+						<span class="badge badge-primary">Current Session</span>
+						<% } %>
+					</td>
+				</tr>
+				<% }); %>
+			</tbody>
+		</table>
+		<a href="/dashboard" class="btn btn-primary ">Back to Homepage</a>
+	
+	</div>
+</div>

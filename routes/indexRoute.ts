@@ -3,7 +3,7 @@ const router = express.Router();
 import { ensureAuthenticated } from "../middleware/checkAuth";
 
 router.get("/", (req, res) => {
-  res.send("welcome");
+  res.render('index');
 });
 
 router.get("/dashboard", ensureAuthenticated, (req, res) => {
