@@ -1,5 +1,6 @@
 import { userModel, FindOneQuery } from '../models/userModel';
 
+//gets called in localstrategy.ts when the user submits the login form
 const getUserByEmailIdAndPassword = (email: FindOneQuery, password: string) => {
 	const user = userModel.findOne(email);
 	if (isUserValid(user, password)) return user;
